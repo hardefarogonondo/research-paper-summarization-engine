@@ -1,21 +1,23 @@
-import streamlit as st
+# Import Libraries
 import requests
+import streamlit as st
 
-st.title('Research Paper Summarization Engine')
+# Initialization
+API_URL = 'http://127.0.0.1:8000/summarize'
 
-API_URL = "http://127.0.0.1:8000/summarize"
+# Main UI
+st.title("Research Paper Summarization Engine")
+user_input = st.text_area("Write the research paper abstract here:")
 
-user_review = st.text_area("Write the research paper abstract here:")
-
-if st.button('Summarize'):
-    if user_review:
-        response = requests.post(API_URL, json={"review": user_review})
+# Summarize Button
+if st.button("Summarize"):
+    if user_input:
+        response = requests.post(API_URL, json={"text": user_input})
         if response.status_code == 200:
             data = response.json()
-            result = data["result"]
-            confidence = data["confidence"]
-            st.write(f"Predicted Sentiment: {result} (Confidence: {confidence:.2f})")
+            summary = data["summary"]
+            st.write(f"Summary: {summary}")
         else:
             st.write("Failed to get a response from the model.")
     else:
-        st.write("Please enter a review for prediction.")
+        st.write("Please enter a research paper abstract to summarize.")
