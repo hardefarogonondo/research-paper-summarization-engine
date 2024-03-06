@@ -1,35 +1,20 @@
+# Import Libraries
+from config.config import SummarizeRequest
 from fastapi import FastAPI, HTTPException
-from keras.models import load_model
-from keras.preprocessing.sequence import pad_sequences
-import pickle
+from transformers import T5ForConditionalGeneration, T5Tokenizer
 
-app = FastAPI(title="Research Paper Summarization Engine API")
+# Initialization
+tokenizer = T5Tokenizer.from_pretrained('../../models/t5_tokenizer')
+model = T5ForConditionalGeneration.from_pretrained('../../models/t5_model')
+app = FastAPI()
 
-# Load the model and tokenizer
-model = load_model('../../models/summarizer_model')
-with open('../../models/tokenizer.pkl', 'rb') as handle:
-    tokenizer = pickle.load(handle)
 
-max_length = 300
-
-@app.post('summarize')
-def predict_sentiment(review: str):
+@app.post("/summarize")
+def summarize(request: SummarizeRequest):
     try:
-        # Tokenize and pad the input text
-        sequence = tokenizer.texts_to_sequences([review])
-        padded_sequence = pad_sequences(sequence, maxlen=max_length, padding='post')
-        
-        # Perform the prediction
-        prediction = model.predict(padded_sequence)[0][0]
-        
-        # Interpret the prediction probability
-        result = "Positive" if prediction > 0.5 else "Negative"
-        confidence = prediction if result == "Positive" else 1 - prediction
-        
-        return {"result": result, "confidence": confidence}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+        input_ids = tokenizer.encode(request.text, return_tensors='pt', add_special_tokens=True)
+        summary_ids = model.generate(input_ids, num_beams=5, max_length=200, early_stopping=True)
+        summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+        return {"summary": summary}
+    except Exception as error_msg:
+        raise HTTPException(status_code=500, detail=str(error_msg))
