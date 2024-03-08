@@ -1,3 +1,5 @@
 **/.ipynb_checkpoints
 **/__pycache__
 **/.vscode
+models/pegasus_model/model.safetensors
+models/t5_model/model.safetensors
