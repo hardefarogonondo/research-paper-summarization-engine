@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /streamlit_app
 
-COPY . /streamlit_app/
+COPY ./src/frontend /streamlit_app
 
 RUN pip install --no-cache-dir -r requirements_frontend.txt
 
