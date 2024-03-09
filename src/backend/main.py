@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from transformers import PegasusForConditionalGeneration, PegasusTokenizer
 
 # Initialization
-model_dir = '../../models/pegasus_model'
+model_dir = '/app/models/pegasus_model'
 tokenizer = PegasusTokenizer.from_pretrained(model_dir)
 model = PegasusForConditionalGeneration.from_pretrained(model_dir)
 app = FastAPI()
